@@ -43,14 +43,15 @@ class NotificationService : NotificationListenerService() {
 
 
         //check the app that received the notification and perform necessary actions
-        if (sbn.packageName == "com.whatsapp" || sbn.packageName == "com.whatsapp.w4b"){
+        if (sbn.packageName == "com.whatsapp" || sbn.packageName == "com.whatsapp.w4b") {
             val sharedPrefs = SharePreferences(applicationContext)
             val messages = sharedPrefs.getAutoReplyMessages()
             for (message in messages) {
                 val trigger = message.trigger
-                val response = message.response
+                val responses = message.response.split('\n')
                 if (body.startsWith(trigger)) {
-                    reply(sbn, response)
+                    for (response in responses)
+                        reply(sbn, response)
                     break // Berhenti setelah menemukan pencocokan pertama (opsional)
                 }
             }
@@ -59,7 +60,7 @@ class NotificationService : NotificationListenerService() {
 //            }
         }
 
-        if (sbn.packageName == "com.twitter.android"){
+        if (sbn.packageName == "com.twitter.android") {
             clickButton(sbn, "retweet")
             clickButton(sbn, "like")
         }

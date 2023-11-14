@@ -27,15 +27,20 @@
         <View
             android:layout_width="match_parent"
             android:layout_height="1dp"
-            android:background="@color/black"/>
+            android:background="@color/black" /> <!-- Garis pemisah untuk trigger -->
 
-        <TextView
-            android:id="@+id/responseTextView"
-            android:layout_width="wrap_content"
+        <!-- Container untuk pesan balasan -->
+        <LinearLayout
+            android:id="@+id/responseContainer"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Response: "
-            android:textSize="16sp"
-            android:layout_marginBottom="10dp"/>
+            android:orientation="vertical">
+        </LinearLayout>
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="@color/black" /> <!-- Garis pemisah antara pesan balasan -->
 
         <LinearLayout
             android:layout_width="match_parent"
