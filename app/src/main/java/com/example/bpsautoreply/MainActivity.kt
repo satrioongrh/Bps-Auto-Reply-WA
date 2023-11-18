@@ -57,63 +57,37 @@ class MainActivity : AppCompatActivity() {
             editTextContainer.removeAllViews()
         }
 
-//        buttonSimpan.setOnClickListener {
-//            val trigger = triggerEditText.text.toString()
-//            val response = responseEditText.text.toString()
-//
-//            val messages = sharePref.getAutoReplyMessages().toMutableList()
-//            messages.add(AutoReplyMessage(UUID.randomUUID().toString(), trigger, response))
-//
-//            sharePref.setAutoReplyMessages(messages)
-//
-//            // Clear the EditText fields after saving
-//            triggerEditText.text.clear()
-//            responseEditText.text.clear()
-//
-//            Toast.makeText(this, "berhasil menambahkan pesan balasan", Toast.LENGTH_LONG).show()
-//        }
-
         buttonSimpan.setOnClickListener {
             val trigger = triggerEditText.text.toString()
-            val defaultResponse = responseEditText.text.toString()
 
-            val responseEditTexts = mutableListOf<EditText>()
+            // Combine responses from all EditTexts, including the default response
+            val allResponses = mutableListOf<String>()
+            allResponses.add(responseEditText.text.toString()) // Default response from the first EditText
 
-            // Iterate through all EditTexts in editTextContainer and get their text
             for (i in 0 until editTextContainer.childCount) {
                 if (editTextContainer.getChildAt(i) is EditText) {
-                    responseEditTexts.add(editTextContainer.getChildAt(i) as EditText)
+                    val currentEditText = editTextContainer.getChildAt(i) as EditText
+                    allResponses.add(currentEditText.text.toString())
                 }
             }
 
-            val responses = responseEditTexts.map { it.text.toString() }
+            // Join all responses using the separator
+            val combinedResponse = allResponses.joinToString("\n--NEW_RESPONSE--\n").trim()
 
-            if (trigger.isNotEmpty()) {
-                val messages = sharePref.getAutoReplyMessages().toMutableList()
+            // Save the combined response to SharedPreferences
+            val messages = sharePref.getAutoReplyMessages().toMutableList()
+            messages.add(AutoReplyMessage(UUID.randomUUID().toString(), trigger, combinedResponse))
+            sharePref.setAutoReplyMessages(messages)
 
-                val combinedResponse = (defaultResponse + "\n" + responses.joinToString("\n")).trim()
+            // Clear the EditText fields after saving
+            triggerEditText.text.clear()
+            responseEditText.text.clear()
 
-//                val combinedResponse = responses.joinToString("\n") // Menggabungkan pesan-pesan dengan baris baru sebagai pemisah
+            // Clear all additional EditTexts
+            editTextContainer.removeAllViews()
 
-                messages.add(AutoReplyMessage(UUID.randomUUID().toString(), trigger, combinedResponse))
-
-                sharePref.setAutoReplyMessages(messages)
-
-                // Clear the EditText fields after saving
-                triggerEditText.text.clear()
-                responseEditText.text.clear()
-
-                for (responseEditText in responseEditTexts) {
-                    responseEditText.text.clear()
-                }
-
-                Toast.makeText(this, "Berhasil menambahkan pesan-pesan balasan", Toast.LENGTH_LONG).show()
-            } else {
-                Toast.makeText(this, "Isi trigger dan pesan balasan yang diperlukan", Toast.LENGTH_LONG).show()
-            }
+            Toast.makeText(this, "Berhasil menambahkan pesan-pesan balasan", Toast.LENGTH_LONG).show()
         }
-
-
 
         buttonMoveListActivity.setOnClickListener {
             startActivity(Intent(this, ListMessageActivity::class.java))

@@ -41,23 +41,26 @@ class NotificationService : NotificationListenerService() {
 
         Timber.w("onNotificationPosted {key=${sbn.key},app=${appName},id=${sbn.id},ticker=$ticker,title=$title,body=$body,posted=${sbn.postTime},package=${sbn.packageName}}")
 
-
-        //check the app that received the notification and perform necessary actions
         if (sbn.packageName == "com.whatsapp" || sbn.packageName == "com.whatsapp.w4b") {
             val sharedPrefs = SharePreferences(applicationContext)
             val messages = sharedPrefs.getAutoReplyMessages()
-            for (message in messages) {
-                val trigger = message.trigger
-                val responses = message.response.split('\n')
-                if (body.startsWith(trigger)) {
-                    for (response in responses)
-                        reply(sbn, response)
-                    break // Berhenti setelah menemukan pencocokan pertama (opsional)
+
+            for (message in messages.sortedByDescending { it.trigger.length }) {
+                val trigger = message.trigger.lowercase() // Mengonversi trigger menjadi huruf kecil
+                val bodyLower = body.lowercase() // Mengonversi pesan yang diterima menjadi huruf kecil
+                val responses = message.response.split("--NEW_RESPONSE--")
+
+                // Pengecekan trigger yang lebih teliti
+                if (bodyLower.startsWith(trigger) && bodyLower.length == trigger.length) {
+                    // Kirim setiap pesan secara terpisah
+                    for (response in responses) {
+                        if (response.isNotEmpty()) {
+                            reply(sbn, response.trim())
+                        }
+                    }
+                    break
                 }
             }
-//            if (body.startsWith("/about")){
-//                reply(sbn, "This is an automatic reply test")
-//            }
         }
 
         if (sbn.packageName == "com.twitter.android") {
@@ -93,5 +96,4 @@ class NotificationService : NotificationListenerService() {
         }
         this.cancelNotification(sbn.key)
     }
-
 }
